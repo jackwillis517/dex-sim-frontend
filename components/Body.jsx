@@ -5,14 +5,22 @@ import { useState } from "react"
 import { useNotification } from "@web3uikit/core"
 import { ethers } from "ethers"
 
+
+
 export default function Body() {
-    //Header.jsx passes up metamask info to MoralisProvider which then passes it down to all
-    //components inside the provider tags
     const { chainId: chainIdHex } = useMoralis()
     const chainId = parseInt(chainIdHex)
     const dexSimAddress = chainId in contractAddresses ? contractAddresses[chainId][0] : null
     const [buterinsForUser, setButerinsForUser] = useState(0)
-    const [nakamotosForUser, setNakamotosForUser] = useState(0)
+    const [nakamotosForUser, setNakamotosForUser] = useState(0) 
+    const [buterinsForDex, setButerinsForDex] = useState(0)
+    const [nakamotosForDex, setNakamotosForDex] = useState(0)
+    const [buterinsForSwap, setButerinsForSwap] = useState(0)
+    const [nakamotosForSwap, setNakamotosForSwap] = useState(0)
+    const [dexButerinsBalance, setDexButerinsBalance] = useState(0)
+    const [dexNakamotosBalance, setDexNakamotosBalance] = useState(0)
+    const [userButerinsBalance, setUserButerinsBalance] = useState(0)
+    const [userNakamotosBalance, setUserNakamotosBalance] = useState(0)
     const dispatch = useNotification()
 
 
@@ -77,11 +85,39 @@ export default function Body() {
         functionName: "reset",
         params: {}
     })
+
+    const {runContractFunction: addLiquidity} = useWeb3Contract({
+        abi: abi,
+        contractAddress: dexSimAddress,
+        functionName: "addLiquidity",
+        params: {
+            amountNakamotos: nakamotosForDex,
+            amountButerins: buterinsForDex,
+        }
+    })
+
+    const {runContractFunction: swapButerins} = useWeb3Contract({
+        abi: abi,
+        contractAddress: dexSimAddress,
+        functionName: "swapButerins",
+        params: {
+            amount: buterinsForSwap
+        }
+    })
+
+    const {runContractFunction: swapNakamotos} = useWeb3Contract({
+        abi: abi,
+        contractAddress: dexSimAddress,
+        functionName: "swapNakamotos",
+        params: {
+            amount: nakamotosForSwap
+        }
+    })
     //----------------------------------------------------------------------------------//
 
 
 
-    //----------------------------------Success Handlers--------------------------------//
+    //-------------------------------Notification Handlers------------------------------//
     const handleError = async function (tx){
         handleErrorNotification(tx)
     }
@@ -96,15 +132,15 @@ export default function Body() {
         })
     }
 
-    const handleButerinsAddedSuccess = async function (tx){
+    const handleTokensAddedSuccess = async function (tx){
         await tx.wait(1)
-        handleNewButerinsAddedNotification(tx)
+        handleTokensAddedNotification(tx)
     }
     
-    const handleNewButerinsAddedNotification = function () {
+    const handleTokensAddedNotification = function () {
         dispatch({
             type: "success",
-            message: "Buterins Added!",
+            message: "Tokens Added!",
             title: "Notification",
             position: "topR",
             icon: "check",
@@ -126,6 +162,21 @@ export default function Body() {
             icon: "check",
         })
     }
+
+    const handleSwapSuccess = async function (tx){
+        await tx.wait(1)
+        handleSwapNotification(tx)
+    }
+    
+    const handleSwapNotification = function () {
+        dispatch({
+            type: "success",
+            message: "Swap Confirmed!",
+            title: "Notification",
+            position: "topR",
+            icon: "check",
+        })
+    }
     //----------------------------------------------------------------------------------//
 
 
@@ -135,12 +186,22 @@ export default function Body() {
         e.preventDefault()
         if(typeof window != "undefined"){
             const numUserButerins = await getUserButerinsBalance({
-                onSuccess: console.log("success"),
-                onError: (error) => console.log(error)
+                onError: handleError
+            })
+            const numUserButerinsAsBigNumber = ethers.BigNumber.from(numUserButerins)
+            setUserButerinsBalance(numUserButerinsAsBigNumber.toNumber());
+        }
+    }
+
+    const getUserNakamotosHandler = async (e) => {
+        e.preventDefault()
+        if(typeof window != "undefined"){
+            const numUserNakamotos = await getUserNakamotosBalance({
+                onError: handleError
             })
 
-            const numUserButerinsAsBigNumber = ethers.BigNumber.from(numUserButerins)
-            console.log(numUserButerinsAsBigNumber.toNumber());
+            const numUserNakamotosAsBigNumber = ethers.BigNumber.from(numUserNakamotos)
+            setUserNakamotosBalance(numUserNakamotosAsBigNumber.toNumber());
         }
     }
 
@@ -148,12 +209,11 @@ export default function Body() {
         e.preventDefault()
         if(typeof window != "undefined"){
             const numButerins = await getButerins({
-                onSuccess: console.log("success"),
-                onError: (error) => console.log(error)
+                onError: handleError
             })
 
             const numButerinsAsBigNumber = ethers.BigNumber.from(numButerins)
-            console.log(numButerinsAsBigNumber.toNumber());
+            setDexButerinsBalance(numButerinsAsBigNumber.toNumber());
         }
     }
 
@@ -161,25 +221,11 @@ export default function Body() {
         e.preventDefault()
         if(typeof window != "undefined"){
             const numNakamotos = await getNakamotos({
-                onSuccess: console.log("success"),
-                onError: (error) => console.log(error)
+                onError: handleError
             })
 
             const numNakamotosAsBigNumber = ethers.BigNumber.from(numNakamotos)
-            console.log(numNakamotosAsBigNumber.toNumber());
-        }
-    }
-    
-    const getUserNakamotosHandler = async (e) => {
-        e.preventDefault()
-        if(typeof window != "undefined"){
-            const numUserNakamotos = await getUserNakamotosBalance({
-                onSuccess: console.log("success"),
-                onError: (error) => console.log(error)
-            })
-
-            const numUserNakamotosAsBigNumber = ethers.BigNumber.from(numUserNakamotos)
-            console.log(numUserNakamotosAsBigNumber.toNumber());
+            setDexNakamotosBalance(numNakamotosAsBigNumber.toNumber());
         }
     }
 
@@ -188,7 +234,7 @@ export default function Body() {
         setButerinsForUser(document.getElementById("buterinsForUserInput").value)
         console.log(buterinsForUser)
         await addButerinsToUser({
-            onSuccess: handleButerinsAddedSuccess,
+            onSuccess: handleTokensAddedSuccess,
             onError: handleError
         })
     }
@@ -198,7 +244,7 @@ export default function Body() {
         setNakamotosForUser(document.getElementById("nakamotosForUserInput").value)
         console.log(nakamotosForUser)
         await addNakamotosToUser({
-            onSuccess: console.log("success"),
+            onSuccess: handleTokensAddedSuccess,
             onError: handleError
         })
     }
@@ -217,68 +263,127 @@ export default function Body() {
             onError: handleError
         })
     }
+
+    const addLiquidityHandler = async (e) => {
+        e.preventDefault()
+        setNakamotosForDex(document.getElementById("nakamotosForDexInput").value)
+        setButerinsForDex(document.getElementById("buterinsForDexInput").value)
+        console.log(nakamotosForDex)
+        console.log(buterinsForDex)
+        await addLiquidity({
+            onSuccess: handleTokensAddedSuccess,
+            onError: handleError
+        })
+    }
+
+    const swapButerinsHandler = async (e) => {
+        e.preventDefault()
+        setButerinsForSwap(document.getElementById("buterinsForSwapInput").value)
+        console.log(buterinsForSwap)
+        await swapButerins({
+            onSuccess: handleSwapSuccess,
+            onError: handleError
+        })
+    }
+
+    const swapNakamotosHandler = async (e) => {
+        e.preventDefault()
+        setNakamotosForSwap(document.getElementById("nakamotosForSwapInput").value)
+        console.log(nakamotosForSwap)
+        await swapNakamotos({
+            onSuccess: handleSwapSuccess,
+            onError: handleError
+        })
+    }
     //----------------------------------------------------------------------------------//
     
-
+//Baby Blue: 04ACB5
+//Purple: 583a64
+//Yellow: F78D04
+//Orange: E24603
+//Space Blue: 393C6F
 
     return (
-      <div>
-        <h1>Body</h1>
-        <button type="generic" onClick={getButerinsHandler}>Number of DEXes Buterins</button>
-        <br/>
-        <br/>
-        <button type="generic" onClick={getNakamotosHandler}>Number of DEXes Nakamotos</button>
-        <br/>
-        <br/>
-        <button type="generic" onClick={getUserButerinsHandler}>Number of users Buterins</button>
-        <br/>
-        <br/>
-        <button type="generic" onClick={getUserNakamotosHandler}>Number of users Nakamotos</button>
-        <br/>
-        <br/>
-        <button type="generic" onClick={resetHandler}>Reset Simulation</button>
-        <br/>
-        <br/>
-        <button type="generic" id="addUserButton" onClick={addUserHandler}>Add User</button>
-        <form onSubmit={addButerinsToUserHandler}>
-            <h2>Give Yourself Buterins</h2>
-            <label>Add Buterins to User</label>
-            <input type="number" id="buterinsForUserInput" placeholder="12" step="1"/>
-            <button type="submit">Add Buterins</button>
-        </form>
-        <form onSubmit={addNakamotosToUserHandler}>
-            <h2>Give Yourself Nakamotos</h2>
-            <label>Add Nakamotos to User</label>
-            <input type="number" id="nakamotosForUserInput" placeholder="13" step="1"/>
-            <button type="submit">Add Nakamotos</button>
-        </form>
-        <form>
-            <h2>Provide Liquidity to the Decentralized Exchange</h2>
-            <label>Number of Buterins for DEX</label>
-            <input type="number" id="nakamotosForDexInput" placeholder="1" step="1"/>
-            <label>Number of Nakamotos for DEX</label>
-            <input type="number" id="nakamotosForDexInput" placeholder="2" step="1"/>
-            <button type="submit">Add Liquidity</button>
-        </form>
+      <div className="text-3xl grid gap-3 grid-rows-3 grid-cols-1 sm:grid-rows-1 sm:grid-cols-3 mt-32 justify-items-center justify-self-center" >
+        <div className="bg-[#393C6F] text-center">
+            <div>
+                <button 
+                    type="generic" 
+                    onClick={resetHandler} 
+                    className="bg-[#E24603] text-[#ffffff] font-oswald px-3 py-2 rounded-2xl mt-4 mb-12"
+                >
+                    Reset Simulation
+                </button>
+            </div>
+            <div className=" m-2">
+                <form onSubmit={addLiquidityHandler}>
+                    <div>
+                        <h2 className="font-oswald">Provide Liquidity to the Decentralized Exchange</h2>
+                    </div>
+                    <div>
+                        <label>Buterins for DEX</label>
+                        <input type="number" id="nakamotosForDexInput" placeholder="1" step="1"/>
+                        <label>Nakamotos for DEX</label>
+                        <input type="number" id="buterinsForDexInput" placeholder="2" step="1"/>
+                    </div>
+                    <div>
+                        <button type="submit">Add Liquidity</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <div className="bg-[#F78D04] text-center">
+            <h3>{`DEX Buterins: ${dexButerinsBalance}`}</h3>
+                <button type="generic" onClick={getButerinsHandler}>Get DEXes Buterins</button>
+
+            <h3>{`DEX Nakamotos: ${dexNakamotosBalance}`}</h3>
+            <button type="generic" onClick={getNakamotosHandler}>Get DEXes Nakamotos</button>
+
+            <form onSubmit={swapButerinsHandler}>
+                <h2>Buterins for Nakamotos</h2>
+                <input type="number" id="buterinsForSwapInput" placeholder="2" step="1"/>
+                <button type="submit">Swap</button>
+            </form>
+            
+            <form onSubmit={swapNakamotosHandler}>
+                <h2>Nakamotos for Buterins</h2>
+                <input type="number" id="nakamotosForSwapInput" placeholder="1" step="1"/>
+                <button type="submit">Swap</button>
+            </form>
+        </div>
+        
+        <div className="bg-[#393C6F] text-center">
+            <button 
+                type="generic" 
+                id="addUserButton" 
+                onClick={addUserHandler}
+                className="bg-[#E24603] text-[#ffffff] font-oswald px-3 py-2 rounded-2xl mt-4 mb-12"
+            >
+                    Add User
+            </button>
+            
+            <h3>{`User Nakamotos: ${userButerinsBalance}`}</h3>
+            <button type="generic" onClick={getUserButerinsHandler}>Get users Buterins</button>
+            
+            <h3>{`User Nakamotos: ${userNakamotosBalance}`}</h3>
+            <button type="generic" onClick={getUserNakamotosHandler}>Get users Nakamotos</button>
+
+            
+            <h2 className="font-oswald">Provide Liquidity to the User</h2>
+                    
+            <form onSubmit={addButerinsToUserHandler}>
+                <label>Buterins</label>
+                <input type="number" id="buterinsForUserInput" placeholder="12" step="1"/>
+                <button type="submit">Add Buterins</button>
+            </form>
+
+            <form onSubmit={addNakamotosToUserHandler}>
+                <label>Nakamotos</label>
+                <input type="number" id="nakamotosForUserInput" placeholder="13" step="1"/>
+                <button type="submit">Add Nakamotos</button>
+            </form>
+        </div>
       </div>
     )
 }
-
-
-
-
-
-// const handleDepositSuccess = async function (tx){
-    //     await tx.wait(1)
-    //     handleNewDepositNotification(tx)
-    //     setTimeLocked(Date.now() + 30000);
-    // }
-    // const handleNewDepositNotification = function () {
-    //     dispatch({
-    //         type: "success",
-    //         message: "Ether Deposited!",
-    //         title: "Notification",
-    //         position: "topR",
-    //         icon: "check",
-    //     })
-    // }

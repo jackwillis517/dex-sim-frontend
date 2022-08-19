@@ -1,6 +1,7 @@
 import Head from 'next/head'
 import Header from '../components/Header.jsx'
 import Body from '../components/Body.jsx'
+import Topper from '../components/Topper'
 
 export default function Home() {
   return (
@@ -11,6 +12,7 @@ export default function Home() {
         <link rel="icon" href="" />
       </Head>
       <Header/>
+      <Topper />
       <Body/>
     </div>
   )
