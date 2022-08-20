@@ -6,7 +6,7 @@
 
 export default function Topper() {
     return (
-    <div className="bg-[#F78D04] mt-10 pt-5 grid grid-rows-2 grid-cols-1 justify-items-center justify-self-center">
+    <div className="bg-[#F78D04] shadow-xl mt-10 pt-5 grid grid-rows-2 grid-cols-1 justify-items-center justify-self-center">
         <div className="font-zen text-8xl text-[##E24603]">
             <h1>DEX SIM</h1>
         </div>

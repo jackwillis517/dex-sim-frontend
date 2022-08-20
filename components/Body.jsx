@@ -182,72 +182,87 @@ export default function Body() {
 
 
     //----------------------------------Call Handlers--------------------------------//
-    const getUserButerinsHandler = async (e) => {
+    const getUserBalanceHandler = async (e) => {
         e.preventDefault()
         if(typeof window != "undefined"){
             const numUserButerins = await getUserButerinsBalance({
                 onError: handleError
             })
-            const numUserButerinsAsBigNumber = ethers.BigNumber.from(numUserButerins)
-            setUserButerinsBalance(numUserButerinsAsBigNumber.toNumber());
-        }
-    }
-
-    const getUserNakamotosHandler = async (e) => {
-        e.preventDefault()
-        if(typeof window != "undefined"){
             const numUserNakamotos = await getUserNakamotosBalance({
                 onError: handleError
             })
-
+            const numUserButerinsAsBigNumber = ethers.BigNumber.from(numUserButerins)
+            setUserButerinsBalance(numUserButerinsAsBigNumber.toNumber());
             const numUserNakamotosAsBigNumber = ethers.BigNumber.from(numUserNakamotos)
             setUserNakamotosBalance(numUserNakamotosAsBigNumber.toNumber());
         }
     }
 
-    const getButerinsHandler = async (e) => {
+    // const getUserNakamotosHandler = async (e) => {
+    //     e.preventDefault()
+    //     if(typeof window != "undefined"){
+    //         const numUserNakamotos = await getUserNakamotosBalance({
+    //             onError: handleError
+    //         })
+
+    //         const numUserNakamotosAsBigNumber = ethers.BigNumber.from(numUserNakamotos)
+    //         setUserNakamotosBalance(numUserNakamotosAsBigNumber.toNumber());
+    //     }
+    // }
+
+    const getDexBalanceHandler = async (e) => {
         e.preventDefault()
         if(typeof window != "undefined"){
             const numButerins = await getButerins({
                 onError: handleError
             })
-
-            const numButerinsAsBigNumber = ethers.BigNumber.from(numButerins)
-            setDexButerinsBalance(numButerinsAsBigNumber.toNumber());
-        }
-    }
-
-    const getNakamotosHandler = async (e) => {
-        e.preventDefault()
-        if(typeof window != "undefined"){
             const numNakamotos = await getNakamotos({
                 onError: handleError
             })
-
+            const numButerinsAsBigNumber = ethers.BigNumber.from(numButerins)
+            setDexButerinsBalance(numButerinsAsBigNumber.toNumber());
             const numNakamotosAsBigNumber = ethers.BigNumber.from(numNakamotos)
             setDexNakamotosBalance(numNakamotosAsBigNumber.toNumber());
         }
     }
 
-    const addButerinsToUserHandler = async (e) => {
+    // const getNakamotosHandler = async (e) => {
+    //     e.preventDefault()
+    //     if(typeof window != "undefined"){
+    //         const numNakamotos = await getNakamotos({
+    //             onError: handleError
+    //         })
+
+    //         const numNakamotosAsBigNumber = ethers.BigNumber.from(numNakamotos)
+    //         setDexNakamotosBalance(numNakamotosAsBigNumber.toNumber());
+    //     }
+    // }
+
+    const addLiquidityToUserHandler = async (e) => {
         e.preventDefault()
         setButerinsForUser(document.getElementById("buterinsForUserInput").value)
         console.log(buterinsForUser)
+        setNakamotosForUser(document.getElementById("nakamotosForUserInput").value)
+        console.log(nakamotosForUser)
         await addButerinsToUser({
             onSuccess: handleTokensAddedSuccess,
             onError: handleError
         })
-    }
-
-    const addNakamotosToUserHandler = async (e) => {
-        e.preventDefault()
-        setNakamotosForUser(document.getElementById("nakamotosForUserInput").value)
-        console.log(nakamotosForUser)
         await addNakamotosToUser({
             onSuccess: handleTokensAddedSuccess,
             onError: handleError
         })
     }
+
+    // const addNakamotosToUserHandler = async (e) => {
+    //     e.preventDefault()
+    //     setNakamotosForUser(document.getElementById("nakamotosForUserInput").value)
+    //     console.log(nakamotosForUser)
+    //     await addNakamotosToUser({
+    //         onSuccess: handleTokensAddedSuccess,
+    //         onError: handleError
+    //     })
+    // }
 
     const addUserHandler = async (e) => {
         e.preventDefault()
@@ -299,90 +314,133 @@ export default function Body() {
     
 //Baby Blue: 04ACB5
 //Purple: 583a64
+//Light Purple: 6f497e
 //Yellow: F78D04
 //Orange: E24603
 //Space Blue: 393C6F
 
     return (
-      <div className="text-3xl grid gap-3 grid-rows-3 grid-cols-1 sm:grid-rows-1 sm:grid-cols-3 mt-32 justify-items-center justify-self-center" >
-        <div className="bg-[#393C6F] text-center">
-            <div>
+      <div className="text-3xl grid gap-3 grid-rows-3 grid-cols-1 lg:grid-rows-1 lg:grid-cols-3 mt-32 justify-items-center justify-self-center" >
+        <div className="bg-white text-center border-2 border-slate-200 max-w-md p-5 rounded-xl bg-opacity-40 hover:bg-opacity-50 backdrop-filter backdrop-blur-sm">
+            <div className="mt-28">
                 <button 
                     type="generic" 
                     onClick={resetHandler} 
-                    className="bg-[#E24603] text-[#ffffff] font-oswald px-3 py-2 rounded-2xl mt-4 mb-12"
+                    className="bg-[#E24603] hover:bg-[#d15621] shadow-2xl text-[#ffffff] font-oswald px-3 py-2 rounded-md mt-4 mb-12"
                 >
                     Reset Simulation
                 </button>
             </div>
-            <div className=" m-2">
+            <div className="p-2 bg-[#F78D04] shadow-2xl rounded-xl">
                 <form onSubmit={addLiquidityHandler}>
-                    <div>
+                    <div className="my-3">
                         <h2 className="font-oswald">Provide Liquidity to the Decentralized Exchange</h2>
                     </div>
-                    <div>
+                    <div className="my-3">
                         <label>Buterins for DEX</label>
-                        <input type="number" id="nakamotosForDexInput" placeholder="1" step="1"/>
-                        <label>Nakamotos for DEX</label>
-                        <input type="number" id="buterinsForDexInput" placeholder="2" step="1"/>
+                        <br/>
+                        <input className="my-3 rounded-2xl pl-2 w-40 text-center" type="number" id="nakamotosForDexInput" placeholder="1" step="1"/>
                     </div>
-                    <div>
-                        <button type="submit">Add Liquidity</button>
+                    <div className="my-3">
+                        <label>Nakamotos for DEX</label>
+                        <input className="my-3 rounded-2xl pl-2 w-40 text-center" type="number" id="buterinsForDexInput" placeholder="2" step="1"/>
+                    </div>
+                    <div className="my-3">
+                        <button 
+                            type="submit" 
+                            className="bg-[#6f497e] hover:bg-[#583a64] text-[#ffffff] font-oswald px-3 py-2 rounded-md mt-4 mb-12"
+                        >
+                            Add Liquidity
+                        </button>
                     </div>
                 </form>
             </div>
         </div>
 
-        <div className="bg-[#F78D04] text-center">
-            <h3>{`DEX Buterins: ${dexButerinsBalance}`}</h3>
-                <button type="generic" onClick={getButerinsHandler}>Get DEXes Buterins</button>
-
-            <h3>{`DEX Nakamotos: ${dexNakamotosBalance}`}</h3>
-            <button type="generic" onClick={getNakamotosHandler}>Get DEXes Nakamotos</button>
-
-            <form onSubmit={swapButerinsHandler}>
-                <h2>Buterins for Nakamotos</h2>
-                <input type="number" id="buterinsForSwapInput" placeholder="2" step="1"/>
-                <button type="submit">Swap</button>
-            </form>
-            
-            <form onSubmit={swapNakamotosHandler}>
-                <h2>Nakamotos for Buterins</h2>
-                <input type="number" id="nakamotosForSwapInput" placeholder="1" step="1"/>
-                <button type="submit">Swap</button>
-            </form>
+        <div className="bg-white text-center border-2 border-slate-200 max-w-md p-8 rounded-xl bg-opacity-40 hover:bg-opacity-50 backdrop-filter backdrop-blur-sm">
+            <div className="my-4">
+                <h3>{`DEX Buterins: ${dexButerinsBalance}`}</h3>
+                <h3>{`DEX Nakamotos: ${dexNakamotosBalance}`}</h3>
+                <button 
+                    type="generic" 
+                    onClick={getDexBalanceHandler}
+                    className="bg-[#6f497e] hover:bg-[#583a64] shadow-2xl text-[#ffffff] font-oswald px-3 py-2 rounded-md mt-4 mb-12"
+                >
+                    Update DEX Liquidity
+                </button>
+            </div>
+            <div className="my-4">
+                <h3>{`User Buterins: ${userButerinsBalance}`}</h3>
+                <h3>{`User Nakamotos: ${userNakamotosBalance}`}</h3>
+                <button 
+                    type="generic" 
+                    onClick={getUserBalanceHandler}
+                    className="bg-[#6f497e] hover:bg-[#583a64] shadow-2xl text-[#ffffff] font-oswald px-3 py-2 rounded-md mt-4 mb-12"
+                >
+                    Update User Liquidity
+                </button>
+            </div>
+            <div className="my-4 p-2 px-4 bg-[#F78D04] shadow-2xl rounded-xl"> 
+                <form className="mt-5" onSubmit={swapButerinsHandler}>
+                    <h2>Buterins for Nakamotos</h2>
+                    <input className="my-3 rounded-2xl pl-2 w-40 text-center" type="number" id="buterinsForSwapInput" placeholder="2" step="1"/>
+                    <br/>
+                    <button 
+                        className="bg-[#04ACB5] hover:bg-[#13979e] shadow-2xl text-[#ffffff] font-oswald px-3 py-2 rounded-md mt-4"
+                        type="submit"
+                    >
+                        Swap
+                    </button>
+                </form>
+                <form className="mt-5" onSubmit={swapNakamotosHandler}>
+                    <h2>Nakamotos for Buterins</h2>
+                    <input className="my-3 rounded-2xl pl-2 w-40 text-center" type="number" id="nakamotosForSwapInput" placeholder="1" step="1"/>
+                    <br/>
+                    <button 
+                        className="bg-[#04ACB5] hover:bg-[#13979e] shadow-2xl text-[#ffffff] font-oswald px-3 py-2 rounded-md mt-4"
+                        type="submit"
+                    >
+                        Swap
+                    </button>
+                </form>
+            </div>
         </div>
         
-        <div className="bg-[#393C6F] text-center">
-            <button 
-                type="generic" 
-                id="addUserButton" 
-                onClick={addUserHandler}
-                className="bg-[#E24603] text-[#ffffff] font-oswald px-3 py-2 rounded-2xl mt-4 mb-12"
-            >
-                    Add User
-            </button>
-            
-            <h3>{`User Nakamotos: ${userButerinsBalance}`}</h3>
-            <button type="generic" onClick={getUserButerinsHandler}>Get users Buterins</button>
-            
-            <h3>{`User Nakamotos: ${userNakamotosBalance}`}</h3>
-            <button type="generic" onClick={getUserNakamotosHandler}>Get users Nakamotos</button>
-
-            
-            <h2 className="font-oswald">Provide Liquidity to the User</h2>
-                    
-            <form onSubmit={addButerinsToUserHandler}>
-                <label>Buterins</label>
-                <input type="number" id="buterinsForUserInput" placeholder="12" step="1"/>
-                <button type="submit">Add Buterins</button>
-            </form>
-
-            <form onSubmit={addNakamotosToUserHandler}>
-                <label>Nakamotos</label>
-                <input type="number" id="nakamotosForUserInput" placeholder="13" step="1"/>
-                <button type="submit">Add Nakamotos</button>
-            </form>
+        <div className="bg-white text-center border-2 border-slate-200 max-w-md p-5 rounded-xl bg-opacity-40 hover:bg-opacity-50 backdrop-filter backdrop-blur-sm">
+            <div className="mt-28">
+                <button 
+                    type="generic" 
+                    id="addUserButton" 
+                    onClick={addUserHandler}
+                    className="bg-[#E24603] hover:bg-[#d15621] shadow-2xl text-[#ffffff] font-oswald px-3 py-2 rounded-md mt-4 mb-12"
+                >
+                        Add User
+                </button>
+            </div>
+            <div className="p-2 bg-[#F78D04] shadow-2xl rounded-xl">
+                <form onSubmit={addLiquidityToUserHandler}>
+                    <div className="my-3">
+                        <h2 className="font-oswald">Provide Liquidity to the <br/>User</h2>
+                    </div>
+                    <div className="my-3">
+                        <label>Buterins for User</label>
+                        <br/>
+                        <input className="my-3 rounded-2xl pl-2 w-40 text-center" type="number" id="buterinsForUserInput" placeholder="12" step="1"/>
+                    </div>
+                    <div className="my-3">
+                        <label>Nakamotos for User</label>
+                        <input className="my-3 rounded-2xl pl-2 w-40 text-center" type="number" id="nakamotosForUserInput" placeholder="13" step="1"/>
+                    </div>
+                    <div className="my-3">
+                        <button 
+                            type="submit"
+                            className="bg-[#6f497e] hover:bg-[#583a64] shadow-2xl text-[#ffffff] font-oswald px-3 py-2 rounded-md mt-4 mb-12"
+                        >
+                            Add Liquidity
+                        </button>
+                    </div>
+                </form>
+            </div>
         </div>
       </div>
     )
